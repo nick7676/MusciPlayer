@@ -6,5 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   downloadAudio: (url) => ipcRenderer.invoke('downloader', url),
 
-  FolderReader: () => ipcRenderer.invoke('read-all-folder')
+  FolderReader: () => ipcRenderer.invoke('read-all-folder'),
+
+  getSongPath: (song) => ipcRenderer.invoke('get-song-path', song)
 })

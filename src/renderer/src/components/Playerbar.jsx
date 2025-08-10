@@ -1,4 +1,17 @@
-import { AudioPause, AudioPlay, AudioRemove } from '../utils/audioManager'
+import { AudioPause, AudioRemove } from '../utils/audioManager'
+
+let audio = null
+
+async function playAudio(song) {
+  if (!song) return
+  if (audio) {
+    audio.pause()
+    audio = null
+  }
+
+  audio = new Audio(`file://${encodeURIComponent(song)}`)
+  audio.play()
+}
 
 const ButtonStart = ({ onClick }) => {
   return (
@@ -79,15 +92,17 @@ const ButtonStop = ({ onClick }) => {
   )
 }
 
-function PlayerBar() {
+function PlayerBar({ selectedSong }) {
   return (
     <>
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex gap-4 z-50">
-        <ButtonStart onClick={AudioPlay} />
-
         <ButtonPause onClick={AudioPause} />
 
         <ButtonStop onClick={AudioRemove} />
+      </div>
+
+      <div>
+        <button onClick={() => playAudio(selectedSong)}>Play</button>
       </div>
     </>
   )

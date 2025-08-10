@@ -16,6 +16,12 @@ export default defineConfig({
         '@renderer': resolve('src/renderer/src')
       }
     },
-    plugins: [react(), tailwindcss()]
+    plugins: [react(), tailwindcss()],
+    server: {
+      Headers: {
+        'Content-security':
+          "default-src 'self' 'unsafe-inline' data: blob: file:; media-src 'self' data: blob: file:;"
+      }
+    }
   }
 })

@@ -5,19 +5,21 @@ import DownloaderPage from './Pages/DownloaderPage.jsx'
 import Contact from './Pages/Contact.jsx'
 import PlayerBar from './components/Playerbar.jsx'
 import SongChoiser from './components/SongChoiser.jsx'
+import { useState } from 'react'
 
 function App() {
   const location = useLocation()
 
   const isHome = location.pathname === '/'
+  const [selectedSong, setSelectedSong] = useState(null)
 
   return (
     <>
       <NavBar />
       {isHome && (
         <div>
-          <SongChoiser></SongChoiser>
-          <PlayerBar></PlayerBar>
+          <SongChoiser onSelectSong={setSelectedSong} />
+          <PlayerBar selectedSong={selectedSong} />
         </div>
       )}
       <Routes>

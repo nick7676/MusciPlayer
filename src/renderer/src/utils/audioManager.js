@@ -1,12 +1,18 @@
 let audio = null
 
+export function SongChoised(song) {
+  console.log(song)
+
+  return song
+}
+/*
 export function AudioPlay() {
   if (!audio) {
     audio = new Audio('songs/bird.mp3')
   }
   audio.play()
 }
-
+*/
 export function AudioPause() {
   if (audio) {
     audio.pause()

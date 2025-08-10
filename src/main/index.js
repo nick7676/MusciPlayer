@@ -1,9 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, protocol } from 'electron'
 import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import fs from 'fs'
 import { promises as fsPromises } from 'fs'
+import { SongChoised } from '../renderer/src/utils/audioManager'
 
 const ffmpegPath = require('ffmpeg-static')
 const youtubeDl = require('youtube-dl-exec')
@@ -20,7 +21,9 @@ function createWindow() {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      allowRunningInsecureContent: true,
+      webSecurity: false
     }
   })
 
@@ -44,17 +47,24 @@ function createWindow() {
 
 app.whenReady().then(() => {
   customDir = path.join(app.getPath('userData'), 'MusicPlayerDownloads')
-
   if (!fs.existsSync(customDir)) {
     fs.mkdirSync(customDir, { recursive: true })
     console.log('Cartella creata in:', customDir)
   }
-
   global.sharedDownloadPath = customDir
+
+  protocol.registerFileProtocol('music', (request, callback) => {
+    const url = decodeURIComponent(request.url.replace('music://', ''))
+    const filePath = path.join(baseDir, url)
+    callback({ path: filePath })
+  })
+
+  ipcMain.handle('get-song-path', (event, song) => {
+    return path.join(global.sharedDownloadPath, SongChoised(song))
+  })
 
   ipcMain.handle('downloader', async (event, videoUrl) => {
     const outputPath = path.join(global.sharedDownloadPath, '%(title)s.%(ext)s')
-
     try {
       await youtubeDl(videoUrl, {
         extractAudio: true,
@@ -62,7 +72,7 @@ app.whenReady().then(() => {
         output: outputPath,
         ffmpegLocation: ffmpegPath
       })
-      console.log("i'm downloading,i'm butakuummmm")
+      console.log('Download completato!')
       return { success: true, message: 'Download completato' }
     } catch (err) {
       return { success: false, message: err.message }
